@@ -18,6 +18,7 @@ Help()
    echo "    t     Thing identifier"
    echo "    p     Path for folder to save dweets"
    echo "    i     Time interval (in minutes) to get latest dweet [5]"
+   echo "    d     Number of dweets to show in map (all dweets are preserved, this only affects the map) [10]"
    echo "    P     HTTP port [9001]"
    echo "    h     Display help"
    echo
@@ -33,13 +34,15 @@ Help()
 ################################################################################
 
 # Manage arguments with flags
-while getopts ":t:p:i:P:h" opt; do
+while getopts ":t:p:i:d:P:h" opt; do
     case $opt in
         t) thing_id="$OPTARG"
         ;;
         p) path_to_dweets="$OPTARG"
         ;;
         i) interval="$OPTARG"
+        ;;
+        d) n_dweets_map="$OPTARG"
         ;;
         P) http_port="$OPTARG"
         ;;
@@ -102,6 +105,12 @@ if [ -z $interval ]; then
   else
   echo "  Time interval (in minutes) to get latest dweet: $interval"
 fi
+if [ -z $n_dweets_map ]; then
+  echo "  Number of dweets to show in map: argument not provided, using default (10)"
+  n_dweets_map=10
+  else
+  echo "  Number of dweets to show in map: $n_dweets_map"
+fi
 if [ -z $http_port ]; then
   echo "  HTTP port: argument not provided, using default (9001)"
   http_port=9001
@@ -129,8 +138,9 @@ echo "  Done"
 echo "  Creating script for converting JSON file to delimited format ..."
 cat > $sh_dir/convert_json_to_delimited.sh <<EOF
 #!/bin/bash
-/bin/sed 's/^{.*\[//g' $path_to_dweets/log-\`date +%Y%m%d\`.json | /bin/sed 's/\]}//g' | /usr/bin/jq -r '[.thing, .created] + (.content | [.lat, .long, .batt]) | @csv' | /bin/sed '1 i\"thing","created","lat","lng","batt"' | sed $'s/,/|/g' | sed $'s/"//g' > $path_to_dweets/log-\`date +%Y%m%d\`.csv
-/bin/ln -fs $path_to_dweets/log-\`date +%Y%m%d\`.csv $install_dir/data/data.csv
+/bin/sed 's/^{.*\[//g' $path_to_dweets/log-\`date +%Y%m%d\`.json | /bin/sed 's/\]}//g' | /usr/bin/jq -r '[.thing, .created] + (.content | [.lat, .long, .batt]) | @csv' | /bin/sed '1 i\\"thing","created","lat","lng","batt"' | sed $'s/,/|/g' | sed $'s/"//g' > $path_to_dweets/log-\`date +%Y%m%d\`.csv
+/usr/bin/tail -$n_dweets_map $path_to_dweets/log-\`date +%Y%m%d\`.csv | /bin/sed '1 i\\thing|created|lat|lng|batt' > $path_to_dweets/log-\`date +%Y%m%d\`-for-mapping.csv
+/bin/ln -fs $path_to_dweets/log-\`date +%Y%m%d\`-for-mapping.csv $install_dir/data/data.csv
 EOF
 chmod +x $sh_dir/convert_json_to_delimited.sh
 echo "  Done"

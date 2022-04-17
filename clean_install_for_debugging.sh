@@ -9,4 +9,5 @@ rm -rf sh
 rm -f config.js
 rm -f crontab_new
 rm -f nohup.out
-mv data/data-original.csv data/data.csv
+rm -f data/data.csv
+cp -f data/data-original.csv data/data.csv
