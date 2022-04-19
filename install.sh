@@ -68,6 +68,10 @@ create_dir () {
 # Install dir
 install_dir=$PWD
 
+# Services dir
+serv_dir=services
+create_dir $serv_dir
+
 # Timestamp
 timestamp=`date +'%Y%m%dT%H%M%S'`
 
@@ -172,14 +176,39 @@ echo "  Done"
 # Configure leaflet-simple-csv
 echo "  Configuring leaflet-simple-csv ... "
 cp config.js.template config.js
-sed -i 's/var maxZoom = .*/var maxZoom = 24;/g' config.js
+sed -i 's/var maxZoom = .*/var maxZoom = 19;/g' config.js
 echo "  Done"
+
+# Configure unit services
+echo "  Configuring unit services ... "
+cat > $serv_dir/simplehttpgps.service <<EOF
+[Unit]
+Description=Generate leaflet HTTP server for gps tracker map
+After=network-online.target
+Wants=network-online.target systemd-networkd-wait-online.service
+
+StartLimitIntervalSec=10
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=$install_dir/gps-tracker-map
+Restart=on-failure
+RestartSec=5s
+ExecStart=/usr/bin/python -m SimpleHTTPServer 9001
+
+[Install]
+WantedBy=multi-user.target
+EOF
+echo "  Done"
+
+echo "  "
 echo "  Finish the installation by running a HTTP server following these steps:"
-echo "  1. Copy the service: sudo cp services/simplehttpgps.service /etc/systemd/system/"
-echo "  2. Reload: sudo systemctl daemon-reload"
+echo "  1. Copy the service: sudo cp $serv_dir/simplehttpgps.service /etc/systemd/system/"
+echo "  2. Reload daemons: sudo systemctl daemon-reload"
 echo "  3. Restart the service: systemctl restart simplehttpgps.service"
 echo "  Optional. Verify: sudo systemctl status simplehttpgps.service"
 echo "  Optional. Check the logs: journalctl -u simplehttpgps.service"
-
 
 exit
