@@ -1,0 +1,19 @@
+[Unit]
+Description=Generate leaflet HTTP server for gps tracker map
+After=network-online.target
+Wants=network-online.target systemd-networkd-wait-online.service
+
+StartLimitIntervalSec=500
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/gps-tracker-map
+Restart=on-failure
+RestartSec=5s
+ExecStart=/usr/bin/python -m SimpleHTTPServer 9001
+
+[Install]
+WantedBy=multi-user.target
+

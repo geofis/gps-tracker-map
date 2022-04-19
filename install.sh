@@ -173,7 +173,13 @@ echo "  Done"
 echo "  Configuring leaflet-simple-csv ... "
 cp config.js.template config.js
 sed -i 's/var maxZoom = .*/var maxZoom = 24;/g' config.js
-echo "  Run 'nohup python -m SimpleHTTPServer $http_port &' on a terminal window within the installation dir"
 echo "  Done"
+echo "  Finish the installation by running a HTTP server following these steps:"
+echo "  1. Copy the service: sudo cp services/simplehttpgps.service /etc/systemd/system/"
+echo "  2. Reload: sudo systemctl daemon-reload"
+echo "  3. Restart the service: systemctl restart simplehttpgps.service"
+echo "  Optional. Verify: sudo systemctl status simplehttpgps.service"
+echo "  Optional. Check the logs: journalctl -u simplehttpgps.service"
+
 
 exit
