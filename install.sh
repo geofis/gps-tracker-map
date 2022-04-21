@@ -207,8 +207,9 @@ echo "  "
 echo "  Finish the installation by running a HTTP server following these steps:"
 echo "  1. Copy the service: sudo cp $serv_dir/simplehttpgps.service /etc/systemd/system/"
 echo "  2. Reload daemons: sudo systemctl daemon-reload"
-echo "  3. Restart the service: systemctl restart simplehttpgps.service"
+echo "  3. Restart the service: sudo systemctl restart simplehttpgps.service"
 echo "  Optional. Verify: sudo systemctl status simplehttpgps.service"
 echo "  Optional. Check the logs: journalctl -u simplehttpgps.service"
+echo "  Optional. To start the service on every boot, run: sudo systemctl enable simplehttpgps.service"
 
 exit
