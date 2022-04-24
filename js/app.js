@@ -137,11 +137,16 @@ $(document).ready( function() {
             alert('Error retrieving csv file');
         },
         success: function(csv) {
+            try {
             dataCsv = csv;
             populateTypeAhead(csv, fieldSeparator);
             typeAheadSource = ArrayToSet(typeAheadSource);
             $('#filter-string').typeahead({source: typeAheadSource});
             addCsvMarkers();
+            }
+            catch {
+             console.log("error");
+            }
         }
     });
 
